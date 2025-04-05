@@ -14,7 +14,7 @@ const AuthContext = createContext(null);
 
 // Centralized Axios instance
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/auth",
+  baseURL: "http://localhost:8000/api/auth",
   withCredentials: true,
   timeout: 10000, // 10 seconds timeout for better performance
   
@@ -51,22 +51,6 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const login = async (email, password) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { data } = await axiosInstance.post("/sign-in", { email, password });
-      setUser(data.user);
-      toast.success(data.message);
-    } catch (error) {
-      const errorMessage = handleApiError(error);
-      toast.error(errorMessage);
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const logout = async () => {
     setLoading(true);
@@ -84,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, error }}>
+    <AuthContext.Provider value={{ user, logout, loading, error }}>
       {children}
     </AuthContext.Provider>
   );
