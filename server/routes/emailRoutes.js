@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "passport";
-import { getEmailsByLabel, sendEmail } from "../controllers/emailController.js";
+import { getEmailById, getEmailsByLabel, sendEmail } from "../controllers/emailController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.post(
   "/send",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    const { to, subject, message } = req.body;
+    const { to, subject, body } = req.body;
     const user = req.user;
 
     if (!to || !to.includes("@")) {
@@ -20,7 +21,7 @@ router.post(
     }
 
     try {
-      await sendEmail({ to, subject, message, user });
+      await sendEmail({ to, subject, body, user });
       res.json({ message: "Email sent successfully" });
     } catch (err) {
       console.error("Error sending email:", err.message);
@@ -29,4 +30,5 @@ router.post(
   }
 );
 
+router.get("/emails/:id", protect, getEmailById);
 export default router;

@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const OAuth2 = google.auth.OAuth2;
-
+// controllers/emailController.js
 
 export const getEmailsByLabel = async (req, res) => {
   try {
@@ -52,9 +52,7 @@ export const getEmailsByLabel = async (req, res) => {
   }
 };
 
-
-
-export const sendEmail = async ({ to, subject, message, user }) => {
+export const sendEmail = async ({ to, subject, body, user }) => {
   try {
     const oauth2Client = new OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -72,7 +70,7 @@ export const sendEmail = async ({ to, subject, message, user }) => {
     const rawMessage = createEmailBody({
       to,
       subject,
-      message,
+      body,
       from: user.email,
     });
 
@@ -91,13 +89,13 @@ export const sendEmail = async ({ to, subject, message, user }) => {
 };
 
 // Helper to format message into Base64
-function createEmailBody({ to, subject, message, from }) {
+function createEmailBody({ to, subject, body, from }) {
   const str = [
     `To: ${to}`,
     `From: ${from}`,
     `Subject: ${subject}`,
     "",
-    message,
+    body,
   ].join("\n");
 
   return Buffer.from(str)
@@ -106,3 +104,49 @@ function createEmailBody({ to, subject, message, from }) {
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 }
+
+// controllers/emailController.js
+
+export const getEmailById = async (req, res) => {
+  const { id } = req.params;
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const gmail = getGmailClient(user);
+    const response = await gmail.users.messages.get({
+      userId: "me",
+      id,
+      format: "full",
+    });
+
+    const headers = response.data.payload.headers;
+    const getHeader = (name) =>
+      headers.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value;
+
+    // Find plain text part or fallback
+    const bodyPart =
+      response.data.payload.parts?.find(
+        (part) => part.mimeType === "text/plain"
+      )?.body?.data || response.data.payload.body?.data;
+
+    const bodyDecoded = bodyPart
+      ? Buffer.from(bodyPart, "base64").toString("utf-8")
+      : "(No body found)";
+
+    return res.json({
+      id: response.data.id,
+      from: getHeader("From"),
+      to: getHeader("To"),
+      subject: getHeader("Subject"),
+      date: getHeader("Date"),
+      body: bodyDecoded,
+    });
+  } catch (error) {
+    console.error("Error fetching email:", error.message);
+    return res.status(500).json({ error: "Failed to fetch email" });
+  }
+};

@@ -46,7 +46,6 @@ const ComposeBtn = () => {
           withCredentials: true,
         }
       );
-      console.log(res)
       toast.success(res.data.message || "Email sent successfully!");
       form.reset(); // Reset form after sending
     } catch (error) {

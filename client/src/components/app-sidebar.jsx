@@ -29,13 +29,14 @@ const navItems = [
   { title: "Trash", label: "TRASH", icon: Trash2 },
 ];
 
-export function AppSidebar({ token }) {
+export function AppSidebar({ token,onMailClick }) {
   const [activeItem, setActiveItem] = React.useState(navItems[0]);
   const [mails, setMails] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
 
   const { setOpen } = useSidebar();
+  console.log(mails);
 
   const fetchEmails = async (label) => {
     setLoading(true);
@@ -44,7 +45,7 @@ export function AppSidebar({ token }) {
       const res = await axios.get(
         `http://localhost:8000/api/emails?labelId=${label}`,
         {
-          withCredentials: true, // send cookies
+          withCredentials: true, // Ensure session cookie is sent
         }
       );
       setMails(res.data);
@@ -66,7 +67,7 @@ export function AppSidebar({ token }) {
       collapsible="icon"
       className="overflow-hidden *:data-[sidebar=sidebar]:flex-row"
     >
-      {/* Icon Sidebar */}
+      {/* Sidebar Icons */}
       <Sidebar
         collapsible="none"
         className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r"
@@ -125,7 +126,7 @@ export function AppSidebar({ token }) {
         </SidebarFooter>
       </Sidebar>
 
-      {/* Main content */}
+      {/* Main Panel */}
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
@@ -143,44 +144,43 @@ export function AppSidebar({ token }) {
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
-              {loading && (
-                <div className="p-4 space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-[60px] w-full rounded-md" />
+              <SidebarMenu>
+                {loading && (
+                  <div className="p-4 space-y-4">
+                    {[...Array(10)].map((_, i) => (
+                      <Skeleton key={i} className="h-25 w-full rounded-md" />
+                    ))}
+                  </div>
+                )}
+
+                {error && (
+                  <div className="p-4 text-destructive text-sm">
+                    ⚠️ Error: {error}
+                  </div>
+                )}
+
+                {!loading && !error && mails.length === 0 && (
+                  <div className="p-4 text-muted-foreground text-sm">
+                    No emails found for "{activeItem.title}".
+                  </div>
+                )}
+
+                {!loading &&
+                  !error &&
+                  mails.map((mail) => (
+                    <SidebarMenuItem key={mail.id} className="p-1.5">
+                      <SidebarMenuButton
+                        onClick={() => onMailClick(mail.id)} // <== Trigger click
+                        className="h-25 flex flex-col items-start"
+                      >
+                        <div className="text-1 line-clamp-1">{mail.from}</div>
+                        <div className="text-[.7rem]">{mail.date}</div>
+                        <div className="font-medium">{mail.subject}</div>
+                        <p className="line-clamp-2 text-xs">{mail.snippet}</p>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   ))}
-                </div>
-              )}
-
-              {error && (
-                <div className="p-4 text-destructive text-sm">
-                  ⚠️ Error: {error}
-                </div>
-              )}
-
-              {!loading && !error && mails.length === 0 && (
-                <div className="p-4 text-muted-foreground text-sm">
-                  No emails found for "{activeItem.title}".
-                </div>
-              )}
-
-              {!loading &&
-                !error &&
-                mails.map((mail) => (
-                  <a
-                    href="#"
-                    key={mail.id}
-                    className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col items-start gap-2 border-b p-4 text-sm leading-tight whitespace-nowrap last:border-b-0"
-                  >
-                    <div className="flex w-full items-center gap-2">
-                      <span>{mail.from}</span>
-                      <span className="ml-auto text-xs">{mail.date}</span>
-                    </div>
-                    <span className="font-medium">{mail.subject}</span>
-                    <span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces">
-                      {mail.snippet}
-                    </span>
-                  </a>
-                ))}
+              </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
