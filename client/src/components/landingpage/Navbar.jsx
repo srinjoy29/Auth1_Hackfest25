@@ -12,9 +12,9 @@ const Navbar = () => {
     <nav className="sticky top-0 backdrop-blur-md py-3 border-b border-neutral-700/80 z-50">
       <div className="container flex justify-between items-center">
         <div className="logo flex justify-center items-center">
-          <div className="flex flex-shrink-0 aspect-square h-10 mr-2 items-center">
+          {/* <div className="flex flex-shrink-0 aspect-square h-10 mr-2 items-center">
             <img src={logo} alt="logo" />
-          </div>
+          </div> */}
           <span className="text-xl tracking-tight">Atom-Mail</span>
         </div>
         <ul className="hidden lg:flex ml-14 space-x-12">

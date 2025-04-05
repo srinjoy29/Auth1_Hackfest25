@@ -4,6 +4,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import cors from "cors";
+import openaiRoutes from "./routes/openaiRoutes.js"; // Import OpenAI Routes
 
 // Import configs and routes
 import "./config/passport.js"; // Load passport strategies
@@ -46,6 +47,7 @@ app.use(passport.session());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/", emailRoutes);
+app.use("/api/openai", openaiRoutes);
 
 // Test route
 app.get("/", (req, res) => {

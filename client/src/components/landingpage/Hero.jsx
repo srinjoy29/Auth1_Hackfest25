@@ -10,12 +10,13 @@ const Hero = () => {
           </span>
         </h1>
         <p className="mt-10 text-lg text-center text-neutral-500 max-w-4xl">
-  Unlock your creativity and build stunning VR apps effortlessly with our powerful development tools. Start today and transform your ideas into immersive experiences!
+  Supercharge your inbox with AI-powered email intelligence. Compose, reply, and refine messages effortlessly with smart suggestions tailored to your tone and context. Save time, stay productive, and communicate with confidence—welcome to the future of email with Atom Mail.
 </p>
 
+
         <div className="flex justify-center my-10">
-          <a
-            href="#"
+        <a
+            href="/sign-in"
             className="rounded-md px-3 py-2 mx-3 bg-gradient-to-r from-orange-600 to-orange-800"
           >
             Start for free

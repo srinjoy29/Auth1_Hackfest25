@@ -52,6 +52,7 @@ export const getEmailsByLabel = async (req, res) => {
   }
 };
 
+
 export const sendEmail = async ({ to, subject, body, user }) => {
   try {
     const oauth2Client = new OAuth2(
