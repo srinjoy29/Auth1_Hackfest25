@@ -1,16 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  ArchiveX,
-  Command,
-  File,
-  Inbox,
-  Send,
-  Trash2,
-} from "lucide-react"
-import { NavUser } from "@/components/nav-user"
-import { Label } from "@/components/ui/label"
+import * as React from "react";
+import { ArchiveX, Command, File, Inbox, Send, Trash2 } from "lucide-react";
+import { NavUser } from "@/components/nav-user";
+import { Label } from "@/components/ui/label";
 import {
   Sidebar,
   SidebarContent,
@@ -23,9 +16,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { Switch } from "@/components/ui/switch"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/sidebar";
+import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
+import axios from "axios";
 
 const navItems = [
   { title: "Inbox", label: "INBOX", icon: Inbox },
@@ -33,49 +27,50 @@ const navItems = [
   { title: "Sent", label: "SENT", icon: Send },
   { title: "Junk", label: "SPAM", icon: ArchiveX },
   { title: "Trash", label: "TRASH", icon: Trash2 },
-]
+];
 
 export function AppSidebar({ token }) {
-  const [activeItem, setActiveItem] = React.useState(navItems[0])
-  const [mails, setMails] = React.useState([])
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState(null)
+  const [activeItem, setActiveItem] = React.useState(navItems[0]);
+  const [mails, setMails] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
-  const { setOpen } = useSidebar()
+  const { setOpen } = useSidebar();
 
   const fetchEmails = async (label) => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/emails/${label}`,
+      const res = await axios.get(
+        `http://localhost:8000/api/emails?labelId=${label}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // send cookies
         }
-      )
-      if (!res.ok) {
-        const errMsg = await res.text()
-        throw new Error(errMsg || "Failed to fetch emails")
-      }
-      const data = await res.json()
-      setMails(data)
+      );
+      setMails(res.data);
     } catch (err) {
-      setError(err.message || "Something went wrong.")
+      setError(
+        err.response?.data?.message || err.message || "Something went wrong."
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   React.useEffect(() => {
-    fetchEmails(activeItem.label)
-  }, [activeItem])
+    fetchEmails(activeItem.label);
+  }, [activeItem]);
 
   return (
-    <Sidebar collapsible="icon" className="overflow-hidden *:data-[sidebar=sidebar]:flex-row">
+    <Sidebar
+      collapsible="icon"
+      className="overflow-hidden *:data-[sidebar=sidebar]:flex-row"
+    >
       {/* Icon Sidebar */}
-      <Sidebar collapsible="none" className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r">
+      <Sidebar
+        collapsible="none"
+        className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r"
+      >
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -103,8 +98,8 @@ export function AppSidebar({ token }) {
                     <SidebarMenuButton
                       tooltip={{ children: item.title }}
                       onClick={() => {
-                        setActiveItem(item)
-                        setOpen(true)
+                        setActiveItem(item);
+                        setOpen(true);
                       }}
                       isActive={activeItem?.title === item.title}
                       className="px-2.5 md:px-2"
@@ -120,7 +115,13 @@ export function AppSidebar({ token }) {
         </SidebarContent>
 
         <SidebarFooter>
-          <NavUser user={{ name: "shadcn", email: "m@example.com", avatar: "/avatars/shadcn.jpg" }} />
+          <NavUser
+            user={{
+              name: "shadcn",
+              email: "m@example.com",
+              avatar: "/avatars/shadcn.jpg",
+            }}
+          />
         </SidebarFooter>
       </Sidebar>
 
@@ -128,7 +129,9 @@ export function AppSidebar({ token }) {
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
-            <div className="text-foreground text-base font-medium">{activeItem.title}</div>
+            <div className="text-foreground text-base font-medium">
+              {activeItem.title}
+            </div>
             <Label className="flex items-center gap-2 text-sm">
               <span>Unreads</span>
               <Switch className="shadow-none" />
@@ -160,7 +163,8 @@ export function AppSidebar({ token }) {
                 </div>
               )}
 
-              {!loading && !error &&
+              {!loading &&
+                !error &&
                 mails.map((mail) => (
                   <a
                     href="#"
@@ -182,5 +186,5 @@ export function AppSidebar({ token }) {
         </SidebarContent>
       </Sidebar>
     </Sidebar>
-  )
+  );
 }
