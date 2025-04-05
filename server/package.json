@@ -11,7 +11,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.8.4",
+=======
+>>>>>>> 1b51400998625cf421719544f51b1b8fbe46e6b9
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
